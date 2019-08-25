@@ -85,7 +85,7 @@ class ParseData:
         self.valid_acc_list_epoch = []
 
     def train(self, batch_size=25, epochs=30): #should get the number of samples
-        dirs = os.listdir('/home/george/Desktop/Robot_Learning/Datasets/train_data/')
+        dirs = os.listdir('/homes/gt4118/Desktop/supervised_learning/Datasets/train_data/')
         number_of_files = 35
         the_loss = []
         the_acc = []
@@ -99,7 +99,7 @@ class ParseData:
                 acc_list = []
                 loss_list = []
                 num_file += 1
-                pkl_file = open('/home/george/Desktop/Robot_Learning/Datasets/train_data/'+file, 'rb')
+                pkl_file = open('/homes/gt4118/Desktop/supervised_learning/Datasets/train_data/'+file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -178,7 +178,7 @@ class ParseData:
 
             print('Over Epoch, Epoch [{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%').format(epoch+1, epochs, sum(loss_list_epoch)/len(loss_list_epoch), sum(acc_list_epoch)/len(acc_list_epoch))
             print('number of training samples', number_of_samples)
-            torch.save(self.q_network.state_dict(), "/home/george/Desktop/Robot_Learning/weights_classification.pth")
+            torch.save(self.q_network.state_dict(), "/homes/gt4118/Desktop/supervised_learning/weights_classification.pth")
             self.validate()
 
             for l in loss_list_epoch:
@@ -197,7 +197,7 @@ class ParseData:
         plt.suptitle('Training Loss Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/george/Desktop/Robot_Learning/train_loss_plot.jpg')
+        plt.savefig('/homes/gt4118/Desktop/supervised_learning/train_loss_plot.jpg')
         plt.cla()
 
         plt.plot(valid_ind, self.valid_loss_list_epoch)
@@ -206,7 +206,7 @@ class ParseData:
         plt.suptitle('Validation Loss Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/george/Desktop/Robot_Learning/valid_loss_plot.jpg')
+        plt.savefig('/home/gt4118/Desktop/supervised_learning/valid_loss_plot.jpg')
         plt.cla()
 
         plt.plot(train_ind, train_accuracy, '-b')
@@ -215,7 +215,7 @@ class ParseData:
         plt.suptitle('Training Accuracy Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/george/Desktop/Robot_Learning/train_acc_plot.jpg')
+        plt.savefig('/home/gt4118/Desktop/supervised_learning/train_acc_plot.jpg')
         plt.cla()
 
         plt.plot(valid_ind, self.valid_acc_list_epoch, '-b')
@@ -224,14 +224,14 @@ class ParseData:
         plt.suptitle('Validation Accuracy Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/george/Desktop/Robot_Learning/valid_acc_plot.jpg')
+        plt.savefig('/home/gt4118/Desktop/supervised_learning/valid_acc_plot.jpg')
         plt.cla()
 
     def validate(self):
-        dirs = os.listdir('/home/george/Desktop/Robot_Learning/Datasets/validation_data/')
+        dirs = os.listdir('/homes/gt4118/Desktop/supervised_learning/Datasets/validation_data/')
         batch_size = 25
         number_of_files = 9
-        self.q_network.load_state_dict(torch.load("/home/george/Desktop/Robot_Learning/weights_classification.pth"))
+        self.q_network.load_state_dict(torch.load("/homes/gt4118/Desktop/supervised_learning/weights_classification.pth"))
         self.q_network.eval()
         correct = 0
         total = 0
@@ -244,7 +244,7 @@ class ParseData:
                 num_file += 1
                 valid_loss_list = []
                 valid_acc_list = []
-                pkl_file = open('/home/george/Desktop/Robot_Learning/Datasets/validation_data/'+file, 'rb')
+                pkl_file = open('/homes/gt4118/Desktop/supervised_learning/Datasets/validation_data/'+file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -341,7 +341,7 @@ class Inference:
         self.robot.reset_object_position_and_orientation()
         self.robot.get_initial_position()
         self.q_network = Q_Network().cuda()
-        self.q_network.load_state_dict(torch.load("/home/george/Desktop/Robot_Learning/weights.pth"))
+        self.q_network.load_state_dict(torch.load("/homes/gt4118/Desktop/supervised_learning/weights.pth"))
         self.q_network.eval()
         self.client_id = self.robot.client_id
 

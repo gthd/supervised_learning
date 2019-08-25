@@ -38,6 +38,6 @@ class ReplayMemory(object):
         self.position = 0
 
     def store_at_disk(self):
-        data_file = open('/home/george/Desktop/Robot_Learning/Datasets/new_data/my_dataset'+str(self.buffer_num)+'.pkl', 'ab')
+        data_file = open('/homes/gt4118/Desktop/supervised_learning/Datasets/my_dataset'+str(self.buffer_num)+'.pkl', 'ab')
         pickle.dump(self.memory[0], data_file, -1)
         data_file.close()

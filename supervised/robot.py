@@ -19,8 +19,8 @@ class Vrep_Communication:
         self.workspace_limits = np.asarray([[1.028, 1.242], [1.1, 1.278], [-0.0001, 0.4]])
         self.object_handle = []
         # Read files in object mesh directory
-        self.obj_mesh_texture_dir = "/home/george/Desktop/Robot_Learning/textures/"
-        self.obj_mesh_dir = "/home/george/Desktop/Robot_Learning/objects/"
+        self.obj_mesh_texture_dir = "/homes/gt4118/Desktop/supervised_learning/textures/"
+        self.obj_mesh_dir = "/homes/gt4118/Desktop/supervised_learning/objects/"
 
         self.mesh_list = os.listdir(self.obj_mesh_dir)
         self.texture_list = os.listdir(self.obj_mesh_texture_dir)
@@ -29,7 +29,7 @@ class Vrep_Communication:
         self.process = process
         self.port_num = port
         self.host = host
-        self.vrep_path = "/home/george/Desktop/V-REP_PRO_EDU_V3_6_1_Ubuntu18_04/vrep.sh"
+        self.vrep_path = "/homes/gt4118/Desktop/V-REP_PRO_EDU_V3_6_1_Ubuntu18_04/vrep.sh"
         vrep.simxFinish(-1) # just in case a previous connection is open then close it
 
     def pick_color(self):
