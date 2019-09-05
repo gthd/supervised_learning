@@ -20,9 +20,7 @@ class Vrep_Communication:
         self.object_handle = []
         # Read files in object mesh directory
         self.obj_mesh_texture_dir = "/homes/gt4118/Desktop/supervised_learning/textures/"
-        self.obj_mesh_dir = "/homes/gt4118/Desktop/supervised_learning/objects/"
 
-        self.mesh_list = os.listdir(self.obj_mesh_dir)
         self.texture_list = os.listdir(self.obj_mesh_texture_dir)
 
         self.client_id = client_id
