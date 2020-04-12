@@ -1,0 +1,5 @@
+numpy
+opencv-python
+torch
+torchvision==0.1.8
+matplotlib
