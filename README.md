@@ -39,6 +39,10 @@ Additionally, the repository provides two different methods with which the robot
      echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
      ```
+5.
+    ```
+      sudo pip install future
+    ```
 
 ### Installation
 
