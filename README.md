@@ -13,9 +13,23 @@ Additionally, the repository provides two different methods with which the robot
 
    created using the V-REP PRO EDU, Ubuntu 18.04
 
-3. sudo apt-get install libxkbcommon-x11-dev
+3. `sudo apt-get install libxkbcommon-x11-dev
 
-   export PATH=$PATH:~/Qt/Tools/QtCreator/bin
+   export PATH=$PATH:~/Qt/Tools/QtCreator/bin`
+
+4.  Create SWAP file, as the installation of torch is a highly memory consuming procedure.
+
+    `sudo fallocate -l 8G /swapfile
+
+     sudo chmod 600 /swapfile
+
+     sudo mkswap /swapfile
+
+     sudo swapon /swapfile
+
+     sudo cp /etc/fstab /etc/fstab.back
+
+     echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab`
 
 ### Installation
 

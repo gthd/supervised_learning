@@ -1,5 +1,6 @@
 numpy
 opencv-python
-https://download.pytorch.org/whl/cu90/torch-1.1.0-cp36-cp36m-win_amd64.whl
-torchvision==0.1.8
+torch
+torchvision
 matplotlib
+Pillow
