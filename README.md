@@ -44,6 +44,8 @@ Additionally, the repository provides two different methods with which the robot
       sudo pip install future
     ```
 
+6.  Finally, change the path accordingly.
+
 ### Installation
 
 1.  If you don't already have it, [install Python](https://www.python.org/downloads/).

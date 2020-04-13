@@ -48,7 +48,7 @@ class ParseData:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def train(self, batch_size=25, epochs=30): #should get the number of samples
-        dirs = os.listdir('/homes/gt4118/Desktop/Robot_Learning/Datasets/train_data/')
+        dirs = os.listdir('/home/george/Desktop/Github/supervised_learning/Datasets/train_data/')
         number_of_files = 35
         loss_list_epoch = []
         for epoch in range(epochs):
@@ -58,7 +58,7 @@ class ParseData:
             for file in dirs:
                 loss_list = []
                 num_file += 1
-                pkl_file = open('/homes/gt4118/Desktop/Robot_Learning/Datasets/train_data/'+file, 'rb')
+                pkl_file = open('/home/george/Desktop/Github/supervised_learning/Datasets/train_data/'+file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -127,11 +127,11 @@ class ParseData:
         plt.savefig('/homes/gt4118/Desktop/Robot_Learning/training.jpg')
 
     def validate(self):
-        dirs = os.listdir('/homes/gt4118/Desktop/Robot_Learning/Datasets/train_data/')
+        dirs = os.listdir('/home/george/Desktop/Github/supervised_learning/Datasets/train_data/')
         valid_loss_list_epoch = []
         batch_size = 25
         number_of_files = 44
-        self.q_network.load_state_dict(torch.load("/homes/gt4118/Desktop/Robot_Learning/weights.pth"))
+        self.q_network.load_state_dict(torch.load("/home/george/Desktop/Github/supervised_learning/weights_regression.pth"))
         self.q_network.eval()
         number_of_valid_samples = 0
         num_file = 0
@@ -141,7 +141,7 @@ class ParseData:
                 valid_loss_list = []
                 dist_x_list = []
                 dist_y_list = []
-                pkl_file = open('/homes/gt4118/Desktop/Robot_Learning/Datasets/train_data/'+file, 'rb')
+                pkl_file = open('/home/george/Desktop/Github/Datasets/train_data/'+file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -206,4 +206,4 @@ class ParseData:
 
             print('Overall Loss: {:.4f}').format(sum(valid_loss_list_epoch)/len(valid_loss_list_epoch))
 parse_data = ParseData()
-parse_data.validate()
+parse_data.train()
