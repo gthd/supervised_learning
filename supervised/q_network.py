@@ -84,8 +84,8 @@ class ParseData:
         self.valid_loss_list_epoch = []
         self.valid_acc_list_epoch = []
 
-    def train(self, batch_size=25, epochs=30): #should get the number of samples
-        dirs = os.listdir('/homes/gt4118/Desktop/supervised_learning/Datasets/train_data/')
+    def train(self, batch_size=2, epochs=30): #should get the number of samples
+        dirs = os.listdir('/home/george/Desktop/Github/supervised_learning/Datasets/train_data/')
         number_of_files = 35
         the_loss = []
         the_acc = []
@@ -99,7 +99,7 @@ class ParseData:
                 acc_list = []
                 loss_list = []
                 num_file += 1
-                pkl_file = open('/homes/gt4118/Desktop/supervised_learning/Datasets/train_data/'+file, 'rb')
+                pkl_file = open('/home/george/Desktop/Github/supervised_learning/Datasets/train_data/'+file, 'rb')
                 objects = []
                 while True:
                     try:

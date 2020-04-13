@@ -116,7 +116,7 @@ class ParseData:
             print('Over Epoch, Epoch [{}/{}], Loss: {:.4f}').format(epoch+1, epochs, sum(loss_list_epoch)/len(loss_list_epoch))
             print('number of training samples', number_of_samples)
             self.plot(loss_list_epoch)
-            # torch.save(self.q_network.state_dict(), "/home/george/Desktop/Robot_Learning/weights.pth")
+            # torch.save(self.q_network.state_dict(), "/home/george/Desktop/Github/supervised_learning/weights_regression.pth")
 
     def plot(self, loss):
         ind = np.arange(len(loss))
@@ -124,7 +124,7 @@ class ParseData:
         plt.title('Loss over Iteration per file')
         plt.show()
         plt.pause(3)
-        plt.savefig('/homes/gt4118/Desktop/Robot_Learning/training.jpg')
+        plt.savefig('/home/george/Desktop/Github/supervised_learning/training.jpg')
 
     def validate(self):
         dirs = os.listdir('/home/george/Desktop/Github/supervised_learning/Datasets/train_data/')
@@ -141,7 +141,7 @@ class ParseData:
                 valid_loss_list = []
                 dist_x_list = []
                 dist_y_list = []
-                pkl_file = open('/home/george/Desktop/Github/Datasets/train_data/'+file, 'rb')
+                pkl_file = open('/home/george/Desktop/Github/supervised_learning/Datasets/validation_data/'+file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -206,4 +206,4 @@ class ParseData:
 
             print('Overall Loss: {:.4f}').format(sum(valid_loss_list_epoch)/len(valid_loss_list_epoch))
 parse_data = ParseData()
-parse_data.train()
+parse_data.validate()
