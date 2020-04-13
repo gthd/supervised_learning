@@ -13,7 +13,9 @@ Additionally, the repository provides two different methods with which the robot
 
    created using the V-REP PRO EDU, Ubuntu 18.04
 
-3. ```
+3.
+
+   ```
    sudo apt-get install libxkbcommon-x11-dev
 
    export PATH=$PATH:~/Qt/Tools/QtCreator/bin

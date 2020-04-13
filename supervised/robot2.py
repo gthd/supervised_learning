@@ -9,10 +9,10 @@ class Script:
 
     def __init__(self, robot):
         self.robot = robot
-        self.buffer = buffer.ReplayMemory(1)
+        self.buffer = buffer.ReplayMemory(100)
         self.client_id = self.robot.client_id
         self.states = []
-        
+
     global counter
     counter = 0
     global counter1
@@ -48,7 +48,6 @@ class Script:
         global transitions
         self.buffer.push(label, self.pickup_position[0], self.pickup_position[1], self.pickup_orientation[1], self.image)
         self.buffer.store_at_disk()
-        self.buffer.empty()
         self.success_rate(label)
 
     def pick_position(self, exploit=True):
