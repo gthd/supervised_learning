@@ -11,7 +11,7 @@ Additionally, the repository provides two different methods with which the robot
 
 2. Please [download the V-REP](https://coppeliarobotics.com/downloads) physics simulation engine. The repository was
 
-   created using the Education Version. **Add the version that it was developed under**
+   created using the V-REP PRO EDU, Ubuntu 18.04
 
 3. sudo apt-get install libxkbcommon-x11-dev
 
@@ -80,4 +80,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * I want to acknowledge the help and guidance I received from my supervisor [Edward Johns](https://www.imperial.ac.uk/people/e.johns).
-
