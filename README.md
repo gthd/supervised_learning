@@ -15,12 +15,13 @@ Additionally, the repository provides two different methods with which the robot
 
 3.
 
-   ```
-   sudo apt-get install libxkbcommon-x11-dev
+    ```
 
-   export PATH=$PATH:~/Qt/Tools/QtCreator/bin
+    sudo apt-get install libxkbcommon-x11-dev
 
-   ```
+    export PATH=$PATH:~/Qt/Tools/QtCreator/bin
+
+    ```
 
 4.  Create SWAP file, as the installation of torch is a highly memory consuming procedure.
 
