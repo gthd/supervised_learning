@@ -326,5 +326,5 @@ class ParseData:
                 self.valid_acc_list_epoch.append(a)
             time.sleep(4)
 
-my_data = ParseData()
-my_data.train()
+# my_data = ParseData()
+# my_data.train()

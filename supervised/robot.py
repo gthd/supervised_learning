@@ -12,7 +12,7 @@ import array
 
 class Vrep_Communication:
 
-    def __init__(self, client_id=None, process='', port=19997,host='127.0.0.1'):
+    def __init__(self, client_id=None, process='', port=19997, host='127.0.0.1'):
         self.states = []
         self.object_position = []
         self.object_orientation = []
@@ -53,7 +53,7 @@ class Vrep_Communication:
                                        [255, 215, 180],
                                        [0, 128, 128],
                                        [60, 180, 75]])/255.0
-        num = np.random.randint(low=0,high=9,size=1)[0]
+        num = np.random.randint(low=0, high=9, size=1)[0]
         self.color = self.color_space[num]
 
     def end_communication(self):
@@ -89,84 +89,130 @@ class Vrep_Communication:
         elif code == vrep.simx_return_timeout_flag:
             raise RuntimeError('The function timed out (probably the network is down or too slow)')
         elif code == vrep.simx_return_illegal_opmode_flag:
-            raise RuntimeError('The specified operation mode is not supported for the given function')
+            raise RuntimeError('The specified operation mode is not supported for the given \
+                function')
         elif code == vrep.simx_return_remote_error_flag:
-            raise RuntimeError('The function caused an error on the server side (e.g. an invalid handle was specified)')
+            raise RuntimeError('The function caused an error on the server side (e.g. an invalid \
+                handle was specified)')
         elif code == vrep.simx_return_split_progress_flag:
-            raise RuntimeError('The communication thread is still processing previous split command of the same type')
+            raise RuntimeError('The communication thread is still processing previous split \
+                command of the same type')
         elif code == vrep.simx_return_local_error_flag:
             raise RuntimeError('The function caused an error on the client side')
         elif code == vrep.simx_return_initialize_error_flag:
-            raise RuntimeError('A connection to vrep has not been made yet. Have you called connect()? (Port num = ' + str(return_code.port_num))
+            raise RuntimeError('A connection to vrep has not been made yet. Have you called \
+                connect()? (Port num = ' + str(return_code.port_num))
 
-    def call_lua_function(self, lua_function, ints=[], floats=[], strings=[], bytes=bytearray(), opmode=vrep.simx_opmode_blocking):
-        return_code, out_ints, out_floats, out_strings, out_buffer = vrep.simxCallScriptFunction(self.client_id, 'remote_api', vrep.sim_scripttype_customizationscript, lua_function, ints, floats, strings, bytes, opmode)
+    def call_lua_function(self, lua_function, ints=[], floats=[], strings=[], bytes=bytearray(), \
+        opmode=vrep.simx_opmode_blocking):
+        return_code, out_ints, out_floats, out_strings, out_buffer = vrep.simxCallScriptFunction( \
+            self.client_id, 'remote_api', vrep.sim_scripttype_customizationscript, lua_function, \
+                ints, floats, strings, bytes, opmode)
         self.check_for_errors(return_code)
         return out_ints, out_floats, out_strings, out_buffer
 
     def initialise(self):
-        return_code, self.robot_handle = vrep.simxGetObjectHandle(self.client_id, 'Sawyer', vrep.simx_opmode_blocking)
-        sim_ret, self.Sawyer_target_handle = vrep.simxGetObjectHandle(self.client_id,'Sawyer_Target',vrep.simx_opmode_blocking)
-        returnCode, self.motorHandle = vrep.simxGetObjectHandle(self.client_id, 'BaxterGripper_closeJoint', vrep.simx_opmode_blocking)
-        returnCode, self.proxSensorHandle = vrep.simxGetObjectHandle(self.client_id, 'BaxterGripper_attachProxSensor', vrep.simx_opmode_blocking)
+        return_code, self.robot_handle = vrep.simxGetObjectHandle(self.client_id, \
+            'Sawyer', vrep.simx_opmode_blocking)
+        sim_ret, self.Sawyer_target_handle = vrep.simxGetObjectHandle(self.client_id, \
+            'Sawyer_Target', vrep.simx_opmode_blocking)
+        returnCode, self.motorHandle = vrep.simxGetObjectHandle(self.client_id, \
+            'BaxterGripper_closeJoint', vrep.simx_opmode_blocking)
+        returnCode, self.proxSensorHandle = vrep.simxGetObjectHandle(self.client_id, \
+            'BaxterGripper_attachProxSensor', vrep.simx_opmode_blocking)
         self.joint_handles = []
         self.indicator_handles = []
         for i in range(7):
-            returnCode, joint_handle = vrep.simxGetObjectHandle(self.client_id, 'Sawyer_joint' + str(i+1), vrep.simx_opmode_blocking)
+            returnCode, joint_handle = vrep.simxGetObjectHandle(self.client_id, \
+                'Sawyer_joint' + str(i+1), vrep.simx_opmode_blocking)
             self.joint_handles.append(joint_handle)
-        return_code, self.vision_handle = vrep.simxGetObjectHandle(self.client_id, 'Vision_sensor', vrep.simx_opmode_blocking)
+        return_code, self.vision_handle = vrep.simxGetObjectHandle(self.client_id, \
+            'Vision_sensor', vrep.simx_opmode_blocking)
         for i in range(15):
-            returnCode, indicator_handle = vrep.simxGetObjectHandle(self.client_id, 'Plane' + str(i+3), vrep.simx_opmode_blocking)
+            returnCode, indicator_handle = vrep.simxGetObjectHandle(self.client_id, \
+                'Plane' + str(i+3), vrep.simx_opmode_blocking)
             self.indicator_handles.append(indicator_handle)
 
     def add_object(self):
         #self.ind = np.random.randint(low=0,high=len(self.texture_list),size=1)[0]
-        self.ind = np.random.randint(low=0,high=len(self.texture_list),size=1)[0]
+        self.ind = np.random.randint(low=0, high=len(self.texture_list), size=1)[0]
         size = np.random.uniform(low=0.02, high=0.03, size=3)
         random = np.random.uniform(low=0, high=1, size=1)
         if random < 0.33:
-            type=0
+            type = 0
         elif random < 0.66:
             type = 1
         elif random <= 1:
             type = 2
-        ret_resp, self.object_handle,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'addObject', [0], [0.01, 0.01, size[0], size[1], size[2], self.color[0],self.color[1],self.color[2]] , ['Shape_'+str(self.ind), self.obj_mesh_texture_dir + self.texture_list[self.ind]], bytearray(),vrep.simx_opmode_blocking)
+        ret_resp, self.object_handle, _, _, _ = vrep.simxCallScriptFunction(self.client_id, \
+            'remote_api', vrep.sim_scripttype_childscript, 'addObject', [0], \
+                [0.01, 0.01, size[0], size[1], size[2], self.color[0], self.color[1], \
+                self.color[2]], ['Shape_'+str(self.ind), self.obj_mesh_texture_dir + \
+                self.texture_list[self.ind]], bytearray(), vrep.simx_opmode_blocking)
 
     def randomize_mat(self):
-        numb = np.random.randint(low=0,high=len(self.texture_list),size=1)[0]
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_mat', [], [] , [self.obj_mesh_texture_dir + self.texture_list[numb]], bytearray(),vrep.simx_opmode_blocking)
+        numb = np.random.randint(low=0, high=len(self.texture_list), size=1)[0]
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, 'remote_api', \
+            vrep.sim_scripttype_childscript, 'randomize_mat', [], [], \
+            [self.obj_mesh_texture_dir + self.texture_list[numb]], bytearray(), \
+            vrep.simx_opmode_blocking)
 
     def randomize_floor(self):
-        numb = np.random.randint(low=0,high=len(self.texture_list),size=1)[0]
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_floor', [], [] , [self.obj_mesh_texture_dir + self.texture_list[numb]], bytearray(),vrep.simx_opmode_blocking)
+        numb = np.random.randint(low=0, high=len(self.texture_list), size=1)[0]
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, 'remote_api', \
+            vrep.sim_scripttype_childscript, 'randomize_floor', [], [], \
+            [self.obj_mesh_texture_dir + self.texture_list[numb]], \
+            bytearray(), vrep.simx_opmode_blocking)
 
     def randomize_pads(self):
-        numb = np.random.randint(low=0,high=len(self.texture_list),size=2)
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_pads', [], [] , [self.obj_mesh_texture_dir + self.texture_list[numb[0]], self.obj_mesh_texture_dir + self.texture_list[numb[1]]], bytearray(),vrep.simx_opmode_blocking)
+        numb = np.random.randint(low=0, high=len(self.texture_list), size=2)
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, \
+            'remote_api', vrep.sim_scripttype_childscript, 'randomize_pads', \
+            [], [], [self.obj_mesh_texture_dir + self.texture_list[numb[0]], \
+            self.obj_mesh_texture_dir + self.texture_list[numb[1]]], \
+            bytearray(), vrep.simx_opmode_blocking)
 
     def randomize_gripper(self):
-        numb = np.random.randint(low=0,high=len(self.texture_list),size=1)[0]
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_gripper', [], [] , [self.obj_mesh_texture_dir + self.texture_list[numb]], bytearray(),vrep.simx_opmode_blocking)
+        numb = np.random.randint(low=0, high=len(self.texture_list), size=1)[0]
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, \
+            'remote_api', vrep.sim_scripttype_childscript, 'randomize_gripper', \
+            [], [], [self.obj_mesh_texture_dir + self.texture_list[numb]], \
+            bytearray(), vrep.simx_opmode_blocking)
 
     def randomize_link7(self):
-        numb = np.random.randint(low=0,high=len(self.texture_list),size=1)[0]
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_link7', [], [] , [self.obj_mesh_texture_dir + self.texture_list[numb]], bytearray(),vrep.simx_opmode_blocking)
+        numb = np.random.randint(low=0, high=len(self.texture_list), size=1)[0]
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, \
+            'remote_api', vrep.sim_scripttype_childscript, 'randomize_link7', \
+            [], [], [self.obj_mesh_texture_dir + self.texture_list[numb]], \
+            bytearray(), vrep.simx_opmode_blocking)
 
     def randomize_link6(self):
-        numb = np.random.randint(low=0,high=len(self.texture_list),size=1)[0]
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_link6', [], [] , [self.obj_mesh_texture_dir + self.texture_list[numb]], bytearray(),vrep.simx_opmode_blocking)
+        numb = np.random.randint(low=0, high=len(self.texture_list), size=1)[0]
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, 'remote_api', \
+            vrep.sim_scripttype_childscript, 'randomize_link6', [], [], \
+            [self.obj_mesh_texture_dir + self.texture_list[numb]], \
+            bytearray(), vrep.simx_opmode_blocking)
 
     def randomize_link5(self):
-        numb = np.random.randint(low=0,high=len(self.texture_list),size=1)[0]
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_link5', [], [] , [self.obj_mesh_texture_dir + self.texture_list[numb]], bytearray(),vrep.simx_opmode_blocking)
+        numb = np.random.randint(low=0, high=len(self.texture_list), size=1)[0]
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, \
+            'remote_api', vrep.sim_scripttype_childscript, 'randomize_link5', [], \
+            [], [self.obj_mesh_texture_dir + self.texture_list[numb]], \
+            bytearray(), vrep.simx_opmode_blocking)
 
     def randomize_link1(self):
-        numb = np.random.randint(low=0,high=len(self.texture_list),size=1)[0]
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_link1', [], [] , [self.obj_mesh_texture_dir + self.texture_list[numb]], bytearray(),vrep.simx_opmode_blocking)
+        numb = np.random.randint(low=0, high=len(self.texture_list), size=1)[0]
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, \
+            'remote_api', vrep.sim_scripttype_childscript, 'randomize_link1', \
+            [], [], [self.obj_mesh_texture_dir + self.texture_list[numb]], \
+            bytearray(), vrep.simx_opmode_blocking)
 
     def randomize_link0(self):
-        numb = np.random.randint(low=0,high=len(self.texture_list),size=1)[0]
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_link0', [], [] , [self.obj_mesh_texture_dir + self.texture_list[numb]], bytearray(),vrep.simx_opmode_blocking)
+        numb = np.random.randint(low=0, high=len(self.texture_list), size=1)[0]
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, \
+            'remote_api', vrep.sim_scripttype_childscript, 'randomize_link0', \
+            [], [], [self.obj_mesh_texture_dir + self.texture_list[numb]], \
+            bytearray(), vrep.simx_opmode_blocking)
 
     def randomize_links(self):
         self.randomize_link5()
@@ -177,16 +223,21 @@ class Vrep_Communication:
 
     def randomize_camera(self):
         self.vision_handle
-        _, pos = vrep.simxGetObjectPosition(self.client_id, self.vision_handle, -1, vrep.simx_opmode_blocking)
+        _, pos = vrep.simxGetObjectPosition(self.client_id, self.vision_handle, -1, \
+            vrep.simx_opmode_blocking)
         y_pos = np.random.uniform(low=1.4348, high=1.4948, size=1)[0]
-        z_pos = np.random.uniform(low=0.0924, high= 0.2424, size=1)[0]
+        z_pos = np.random.uniform(low=0.0924, high=0.2424, size=1)[0]
         x_pos = pos[0]
         position = np.array([x_pos, y_pos, z_pos])
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_camera', [], position , [], bytearray(),vrep.simx_opmode_blocking)
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, 'remote_api', \
+            vrep.sim_scripttype_childscript, 'randomize_camera', [], position, \
+            [], bytearray(), vrep.simx_opmode_blocking)
 
     def randomize_light(self):
         probs = np.random.uniform(low=0, high=1, size=4)
-        ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'randomize_light', [], probs, [], bytearray(),vrep.simx_opmode_blocking)
+        ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, 'remote_api', \
+            vrep.sim_scripttype_childscript, 'randomize_light', [], \
+            probs, [], bytearray(), vrep.simx_opmode_blocking)
 
     def domain_randomize(self):
         self.randomize_light()
@@ -199,21 +250,27 @@ class Vrep_Communication:
 
     def show_robot(self, show=True):
         if show:
-            ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'show_robot', [1], [] , [], bytearray(),vrep.simx_opmode_blocking)
+            ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, \
+                'remote_api', vrep.sim_scripttype_childscript, 'show_robot', \
+                [1], [], [], bytearray(), vrep.simx_opmode_blocking)
         else:
-            ret_resp, _,_,_,_ = vrep.simxCallScriptFunction(self.client_id, 'remote_api',vrep.sim_scripttype_childscript,'show_robot', [0], [] , [], bytearray(),vrep.simx_opmode_blocking)
+            ret_resp, _, _, _, _ = vrep.simxCallScriptFunction(self.client_id, \
+                'remote_api', vrep.sim_scripttype_childscript, 'show_robot', \
+                [0], [], [], bytearray(), vrep.simx_opmode_blocking)
 
     def get_image(self):
         for i in range(4):
-            err, resolution, image = vrep.simxGetVisionSensorImage(self.client_id, self.vision_handle, 0, vrep.simx_opmode_blocking)
+            err, resolution, image = vrep.simxGetVisionSensorImage(self.client_id, \
+                self.vision_handle, 0, vrep.simx_opmode_blocking)
             self.check_for_errors(err)
         image_byte_array = array.array('b', image)
-        image_buffer = I.frombuffer("RGB", (resolution[0],resolution[1]), image_byte_array, "raw", "RGB", 0, 1)
+        image_buffer = I.frombuffer("RGB", (resolution[0], \
+            resolution[1]), image_byte_array, "raw", "RGB", 0, 1)
         img2 = np.asarray(image_buffer)
-        img2_0 = img2[:,:,0]
-        img2_1 = img2[:,:,1]
-        img2_2 = img2[:,:,2]
-        img2 = np.dstack((img2_2,img2_1, img2_0))
+        img2_0 = img2[:, :, 0]
+        img2_1 = img2[:, :, 1]
+        img2_2 = img2[:, :, 2]
+        img2 = np.dstack((img2_2, img2_1, img2_0))
         #img2 = img2[::-1,:,:]
         return img2
 
@@ -221,83 +278,115 @@ class Vrep_Communication:
         self.object_position = []
         self.object_orientation = []
         for obj in self.object_handle:
-            drop_x = (self.workspace_limits[0][1] - self.workspace_limits[0][0]) * np.random.random_sample() + self.workspace_limits[0][0]
-            drop_y = (self.workspace_limits[1][1] - self.workspace_limits[1][0]) * np.random.random_sample() + self.workspace_limits[1][0]
+            drop_x = (self.workspace_limits[0][1] - self.workspace_limits[0][0]) * \
+                np.random.random_sample() + self.workspace_limits[0][0]
+            drop_y = (self.workspace_limits[1][1] - self.workspace_limits[1][0]) * \
+                np.random.random_sample() + self.workspace_limits[1][0]
             self.object_position = [drop_x, drop_y, 1.0208e-02]
             self.object_orientation = [-1.571, 2*np.pi*np.random.random_sample(), -1.571]
-            vrep.simxSetObjectPosition(self.client_id, obj, -1, self.object_position, vrep.simx_opmode_blocking)
-            vrep.simxSetObjectOrientation(self.client_id, obj, self.robot_handle, self.object_orientation, vrep.simx_opmode_blocking)
+            vrep.simxSetObjectPosition(self.client_id, obj, -1, \
+                self.object_position, vrep.simx_opmode_blocking)
+            vrep.simxSetObjectOrientation(self.client_id, obj, \
+                self.robot_handle, self.object_orientation, vrep.simx_opmode_blocking)
             vrep.simxSynchronousTrigger(self.client_id)
             vrep.simxGetPingTime(self.client_id)
 
     def set_back(self):
-        vrep.simxSetObjectPosition(self.client_id, self.object_handle[0], -1, self.object_position, vrep.simx_opmode_blocking)
-        vrep.simxSetObjectOrientation(self.client_id, self.object_handle[0], self.robot_handle, self.object_orientation, vrep.simx_opmode_blocking)
+        vrep.simxSetObjectPosition(self.client_id, self.object_handle[0], -1, \
+            self.object_position, vrep.simx_opmode_blocking)
+        vrep.simxSetObjectOrientation(self.client_id, self.object_handle[0], \
+            self.robot_handle, self.object_orientation, vrep.simx_opmode_blocking)
         vrep.simxSynchronousTrigger(self.client_id)
         vrep.simxGetPingTime(self.client_id)
 
     def open_hand(self):#this should work to place gripper at initial open position
-        _, dist = vrep.simxGetJointPosition(self.client_id, self.motorHandle, vrep.simx_opmode_blocking)
-        vrep.simxSetJointForce(self.client_id, self.motorHandle, 20, vrep.simx_opmode_blocking)
-        vrep.simxSetJointTargetVelocity(self.client_id, self.motorHandle, -0.5, vrep.simx_opmode_blocking)
+        _, dist = vrep.simxGetJointPosition(self.client_id, \
+            self.motorHandle, vrep.simx_opmode_blocking)
+        vrep.simxSetJointForce(self.client_id, self.motorHandle, \
+            20, vrep.simx_opmode_blocking)
+        vrep.simxSetJointTargetVelocity(self.client_id, self.motorHandle, \
+            -0.5, vrep.simx_opmode_blocking)
         vrep.simxSynchronousTrigger(self.client_id)
         vrep.simxGetPingTime(self.client_id)
         start_time = time.time()
         while dist > -1e-06:#8.22427227831e-06:#-1.67e-06: # Block until gripper is fully open
-            sim_ret, dist = vrep.simxGetJointPosition(self.client_id, self.motorHandle, vrep.simx_opmode_blocking)
-            vrep.simxSetJointTargetVelocity(self.client_id, self.motorHandle, -0.5, vrep.simx_opmode_blocking)
+            sim_ret, dist = vrep.simxGetJointPosition(self.client_id, \
+                self.motorHandle, vrep.simx_opmode_blocking)
+            vrep.simxSetJointTargetVelocity(self.client_id, self.motorHandle, \
+                -0.5, vrep.simx_opmode_blocking)
             vrep.simxSynchronousTrigger(self.client_id)
             vrep.simxGetPingTime(self.client_id)
-            if (time.time() - start_time > 5):
+            if time.time() - start_time > 5:
                 print(dist)
                 print('trouble opening gripper')
-        vrep.simxSetJointTargetVelocity(self.client_id, self.motorHandle, 0.0, vrep.simx_opmode_blocking)
+        vrep.simxSetJointTargetVelocity(self.client_id, self.motorHandle, \
+            0.0, vrep.simx_opmode_blocking)
         vrep.simxSynchronousTrigger(self.client_id)
         vrep.simxGetPingTime(self.client_id)
 
     def close_hand(self):
         vrep.simxSetJointForce(self.client_id, self.motorHandle, 100, vrep.simx_opmode_blocking)
-        vrep.simxSetJointTargetVelocity(self.client_id, self.motorHandle, 0.5, vrep.simx_opmode_blocking)
+        vrep.simxSetJointTargetVelocity(self.client_id, \
+            self.motorHandle, 0.5, vrep.simx_opmode_blocking)
         vrep.simxSynchronousTrigger(self.client_id)
         vrep.simxGetPingTime(self.client_id)
 
     def lift_arm(self):
-        success, Sawyer_target_position = vrep.simxGetObjectPosition(self.client_id, self.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+        success, Sawyer_target_position = vrep.simxGetObjectPosition(self.client_id, \
+            self.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
         lift_position_x = 1.137
         lift_position_y = 1.2151
         lift_position_z = 0.18
         self.lift_position = np.array([lift_position_x, lift_position_y, lift_position_z])
-        move_direction = np.asarray([self.lift_position[0] - Sawyer_target_position[0], self.lift_position[1] - Sawyer_target_position[1], self.lift_position[2] - Sawyer_target_position[2]])
+        move_direction = np.asarray([self.lift_position[0] - Sawyer_target_position[0], \
+            self.lift_position[1] - Sawyer_target_position[1], self.lift_position[2] - \
+            Sawyer_target_position[2]])
         move_magnitude = np.linalg.norm(move_direction)
         move_step = 0.01*move_direction/move_magnitude
         num_move_steps = int(np.floor(move_magnitude/0.01))
         for step_iter in range(num_move_steps):
-            vrep.simxSetObjectPosition(self.client_id,self.Sawyer_target_handle,-1,(Sawyer_target_position[0] + move_step[0], Sawyer_target_position[1] + move_step[1], Sawyer_target_position[2] + move_step[2]),vrep.simx_opmode_blocking)
-            sim_ret, Sawyer_target_position = vrep.simxGetObjectPosition(self.client_id,self.Sawyer_target_handle,-1,vrep.simx_opmode_blocking)
+            vrep.simxSetObjectPosition(self.client_id, self.Sawyer_target_handle, \
+                -1, (Sawyer_target_position[0] + move_step[0], Sawyer_target_position[1] \
+                + move_step[1], Sawyer_target_position[2] + move_step[2]), \
+                vrep.simx_opmode_blocking)
+            sim_ret, Sawyer_target_position = vrep.simxGetObjectPosition(self.client_id, \
+                self.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
             vrep.simxSynchronousTrigger(self.client_id)
             vrep.simxGetPingTime(self.client_id)
-        success = vrep.simxSetObjectPosition(self.client_id, self.Sawyer_target_handle, -1, self.lift_position, vrep.simx_opmode_blocking)
+        success = vrep.simxSetObjectPosition(self.client_id, self.Sawyer_target_handle, \
+            -1, self.lift_position, vrep.simx_opmode_blocking)
         vrep.simxSynchronousTrigger(self.client_id)
         vrep.simxGetPingTime(self.client_id)
 
     def shake_arm(self):
         self.move_to_positions = []
         for i in range(4):
-            self.move_to_positions.append([np.random.uniform(low=1.018, high=1.223,size=1)[0], np.random.uniform(low=0.951, high=1.294,size=1)[0], np.random.uniform(low=0.1, high=0.18,size=1)[0]])
+            self.move_to_positions.append([np.random.uniform(low=1.018, high=1.223, \
+                size=1)[0], np.random.uniform(low=0.951, high=1.294, size=1)[0], \
+                np.random.uniform(low=0.1, high=0.18, size=1)[0]])
 
         for i in range(len(self.move_to_positions)):
-            success, Sawyer_target_position = vrep.simxGetObjectPosition(self.client_id, self.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+            success, Sawyer_target_position = vrep.simxGetObjectPosition(self.client_id, \
+                self.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
             move_position = self.move_to_positions[i]
-            move_direction = np.asarray([move_position[0] - Sawyer_target_position[0], move_position[1] - Sawyer_target_position[1], move_position[2] - Sawyer_target_position[2]])
+            move_direction = np.asarray([move_position[0] - Sawyer_target_position[0], \
+                move_position[1] - Sawyer_target_position[1], move_position[2] - \
+                Sawyer_target_position[2]])
             move_magnitude = np.linalg.norm(move_direction)
             move_step = 0.01*move_direction/move_magnitude
             num_move_steps = int(np.floor(move_magnitude/0.01))
             for step_iter in range(num_move_steps):
-                vrep.simxSetObjectPosition(self.client_id,self.Sawyer_target_handle,-1,(Sawyer_target_position[0] + move_step[0], Sawyer_target_position[1] + move_step[1], Sawyer_target_position[2] + move_step[2]),vrep.simx_opmode_blocking)
-                sim_ret, Sawyer_target_position = vrep.simxGetObjectPosition(self.client_id,self.Sawyer_target_handle,-1,vrep.simx_opmode_blocking)
+                vrep.simxSetObjectPosition(self.client_id, self.Sawyer_target_handle, \
+                    -1, (Sawyer_target_position[0] + move_step[0], Sawyer_target_position[1] \
+                    + move_step[1], Sawyer_target_position[2] + move_step[2]), \
+                    vrep.simx_opmode_blocking)
+                sim_ret, Sawyer_target_position = vrep.simxGetObjectPosition(self.client_id, \
+                    self.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
                 vrep.simxSynchronousTrigger(self.client_id)
                 vrep.simxGetPingTime(self.client_id)
-            success = vrep.simxSetObjectPosition(self.client_id, self.Sawyer_target_handle, -1, move_position, vrep.simx_opmode_blocking)
+            success = vrep.simxSetObjectPosition(self.client_id, \
+                self.Sawyer_target_handle, -1, move_position, \
+                vrep.simx_opmode_blocking)
             vrep.simxSynchronousTrigger(self.client_id)
             vrep.simxGetPingTime(self.client_id)
 
@@ -305,7 +394,8 @@ class Vrep_Communication:
         i = 0
         while True:
             i += 1
-            retCode, pos = vrep.simxGetObjectPosition(self.client_id, self.object_handle[0], -1, vrep.simx_opmode_blocking)
+            retCode, pos = vrep.simxGetObjectPosition(self.client_id, \
+                self.object_handle[0], -1, vrep.simx_opmode_blocking)
             vrep.simxSynchronousTrigger(self.client_id)
             vrep.simxGetPingTime(self.client_id)
             if pos[2] < 0.02:

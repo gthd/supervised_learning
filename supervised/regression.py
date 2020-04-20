@@ -47,7 +47,7 @@ class ParseData:
         # print(sum(p.numel() for p in self.q_network.parameters() if p.requires_grad))
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    def train(self, batch_size=25, epochs=30): #should get the number of samples
+    def train(self, batch_size=10, epochs=30): #should get the number of samples
         dirs = os.listdir('/home/george/Desktop/Github/supervised_learning/Datasets/train_data/')
         number_of_files = 35
         loss_list_epoch = []
@@ -129,7 +129,7 @@ class ParseData:
     def validate(self):
         dirs = os.listdir('/home/george/Desktop/Github/supervised_learning/Datasets/train_data/')
         valid_loss_list_epoch = []
-        batch_size = 25
+        batch_size = 10
         number_of_files = 44
         self.q_network.load_state_dict(torch.load("/home/george/Desktop/Github/supervised_learning/weights_regression.pth"))
         self.q_network.eval()
@@ -205,5 +205,5 @@ class ParseData:
                 valid_loss_list_epoch.append(sum(valid_loss_list)/len(valid_loss_list))
 
             print('Overall Loss: {:.4f}').format(sum(valid_loss_list_epoch)/len(valid_loss_list_epoch))
-parse_data = ParseData()
-parse_data.validate()
+# parse_data = ParseData()
+# parse_data.validate()

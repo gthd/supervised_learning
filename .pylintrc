@@ -1,0 +1,7 @@
+[MESSAGES CONTROL]
+# disabled messages
+disable=missing-docstring, too-many-instance-attributes
+
+[TYPECHECK]
+ignored-modules = numpy, numpy.testing
+ignored-classes = numpy, numpy.testing

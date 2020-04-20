@@ -1,10 +1,10 @@
-import numpy as np
 import pickle
 from collections import namedtuple
-import os
+import random
+import numpy as np
 
 Buffer = namedtuple('Buffer',
-                        ('label', 'grasp_pos_x', 'grasp_pos_y', 'grasp_orientation', 'image'))
+                    ('label', 'grasp_pos_x', 'grasp_pos_y', 'grasp_orientation', 'image'))
 
 class ReplayMemory(object):
 
@@ -36,6 +36,7 @@ class ReplayMemory(object):
         return len(self.memory)
 
     def store_at_disk(self):
-        data_file = open('/home/george/Desktop/Github/supervised_learning/Datasets/my_dataset'+str(self.buffer_num)+'.pkl', 'ab')
+        data_file = open('/home/george/Desktop/Github/supervised_learning/Datasets/my_dataset'+ \
+            str(self.buffer_num)+'.pkl', 'ab')
         pickle.dump(self.memory[self.position-1], data_file, -1)
         data_file.close()
