@@ -1,25 +1,18 @@
-import vrep
+import os
+import pickle
 import time
-import cv2
+import robot
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
-import torchvision.transforms as T
-import pickle
 import numpy as np
-import buffer
-import itertools
-from collections import namedtuple
-import os
 import matplotlib
-matplotlib.use('agg')
 import matplotlib.pyplot as plt
-import robot
+matplotlib.use('agg')
 
-class Q_Network(nn.Module):
+class QNetwork(nn.Module):
     def __init__(self):
-        super(Q_Network, self).__init__()
+        super(QNetwork, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.conv0 = nn.Conv2d(3, 32, kernel_size=3, stride=2, padding=1)
         self.relu = nn.ReLU(inplace=True)
@@ -45,17 +38,17 @@ class Q_Network(nn.Module):
         self.sigmoid = nn.Sigmoid()
         self.relu = nn.ReLU()
 
-    def forward(self, x, action_vector):
+    def forward(self, data, action_vector):
 
-        x = x.to(self.device)
+        data = data.to(self.device)
 
-        x = self.bn0(self.relu(self.conv0(x)))
-        x = self.bn1(self.relu(self.conv1(x)))
-        x = self.bn2(self.relu(self.conv2(x)))
-        x = x.view(x.size(0), -1)
-        x = self.relu(self.fc_model_0(x))
-        x = self.relu(self.fc_model_1(x))
-        x = self.relu(self.fc_model_2(x))
+        data = self.bn0(self.relu(self.conv0(data)))
+        data = self.bn1(self.relu(self.conv1(data)))
+        data = self.bn2(self.relu(self.conv2(data)))
+        data = data.view(data.size(0), -1)
+        data = self.relu(self.fc_model_0(data))
+        data = self.relu(self.fc_model_1(data))
+        data = self.relu(self.fc_model_2(data))
 
         action_vector = action_vector.to(self.device)
 
@@ -63,7 +56,7 @@ class Q_Network(nn.Module):
         action_vector = self.relu(self.fc0_2(action_vector))
         action_vector = self.relu(self.fc0_3(action_vector))
 
-        new_vector = action_vector + x
+        new_vector = action_vector + data
 
         new_vector = self.relu(self.fc1(new_vector))
         new_vector = self.relu(self.fc2(new_vector))
@@ -72,12 +65,12 @@ class Q_Network(nn.Module):
         probability = self.sigmoid(self.fc5(new_vector))
         return probability
 
-class ParseData:
+class Classification:
     def __init__(self):
         self.robot = robot
         self.criterion = nn.BCELoss()
         torch.cuda.empty_cache()
-        self.q_network = Q_Network().cuda()
+        self.q_network = QNetwork().cuda()
         self.optimizer = optim.Adam(self.q_network.parameters(), lr=1e-5)
         print(sum(p.numel() for p in self.q_network.parameters() if p.requires_grad))
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -92,14 +85,15 @@ class ParseData:
         for epoch in range(epochs):
             number_of_samples = 0
             num_file = 0
-            jj = 0
+            iterator = 0
             loss_list_epoch = []
             acc_list_epoch = []
             for file in dirs:
                 acc_list = []
                 loss_list = []
                 num_file += 1
-                pkl_file = open('/home/george/Desktop/Github/supervised_learning/Datasets/train_data/'+file, 'rb')
+                pkl_file = open('/home/george/Desktop/Github/supervised_learning/Datasets/\
+                    train_data/'+file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -116,12 +110,12 @@ class ParseData:
                 for obj in objects:
                     if obj.image.shape[0] == 32:
                         new_objects.append(obj)
-                N = len(new_objects)
-                number_of_samples += N
+                number_of_objects = len(new_objects)
+                number_of_samples += number_of_objects
                 # print(file)
                 # print(N)
-                for i in range(N):
-                    jj += 1
+                for i in range(number_of_objects):
+                    iterator += 1
                     if i % batch_size == 0 and i != 0:
                         img_state_batch = torch.cat(list_image)
                         img_state_batch = img_state_batch.clone().detach().float()
@@ -130,11 +124,12 @@ class ParseData:
                         grasp_orientation_batch = torch.cat(list_grasp_orientation).float()
                         label_batch = torch.cat(list_label).float()
                         label_batch = label_batch.view(-1, 1).float().to(self.device)
-                        grasp_orientation_batch = grasp_orientation_batch.view(-1,1)
-                        grasp_pos_x_batch = grasp_pos_x_batch.view(-1,1)
-                        grasp_pos_y_batch = grasp_pos_y_batch.view(-1,1)
-                        img_state_batch = img_state_batch.view(-1,3, 32, 32)
-                        action_vector = torch.cat((grasp_pos_x_batch, grasp_pos_y_batch, grasp_orientation_batch), dim=1)
+                        grasp_orientation_batch = grasp_orientation_batch.view(-1, 1)
+                        grasp_pos_x_batch = grasp_pos_x_batch.view(-1, 1)
+                        grasp_pos_y_batch = grasp_pos_y_batch.view(-1, 1)
+                        img_state_batch = img_state_batch.view(-1, 3, 32, 32)
+                        action_vector = torch.cat((grasp_pos_x_batch, grasp_pos_y_batch, \
+                            grasp_orientation_batch), dim=1)
 
                         probabilities = self.q_network(img_state_batch, action_vector)
                         loss = self.criterion(probabilities, label_batch)
@@ -143,20 +138,20 @@ class ParseData:
                         loss.backward()
                         self.optimizer.step()
                         total = action_vector.shape[0]
-                        a = []
-                        for km in probabilities:
-                            if km > 0.5:
-                                a.append(1)
+                        list_of_probs = []
+                        for probability in probabilities:
+                            if probability > 0.5:
+                                list_of_probs.append(1)
                             else:
-                                a.append(0)
-                        a = torch.tensor(a).float()
+                                list_of_probs.append(0)
+                        torch_of_probs = torch.tensor(list_of_probs).float()
 
-                        h = []
-                        for kl in label_batch:
-                            h.append(kl[0])
-                        h = torch.tensor(h)
+                        list_of_labels = []
+                        for label in label_batch:
+                            list_of_labels.append(label[0])
+                        torch_of_labels = torch.tensor(list_of_labels)
 
-                        correct = (h == a).sum().item()
+                        correct = (torch_of_labels == torch_of_probs).sum().item()
                         acc_list.append((float(correct)/total)*100)
                         loss_list.append(loss.item())
 
@@ -167,24 +162,31 @@ class ParseData:
                         list_label = []
                     else:
                         list_grasp_pos_x.append(torch.tensor(new_objects[i].grasp_pos_x).view(1,))
-                        list_grasp_pos_y.append(torch.tensor(new_objects[i].grasp_pos_y).view(1,))
-                        list_grasp_orientation.append(torch.tensor(new_objects[i].grasp_orientation).view(1,))
+                        list_grasp_pos_y.append(torch.tensor(new_objects[i].\
+                            grasp_pos_y).view(1,))
+                        list_grasp_orientation.append(torch.tensor(new_objects[i].\
+                            grasp_orientation).view(1,))
                         list_image.append(torch.from_numpy(new_objects[i].image))
                         list_label.append(torch.tensor(new_objects[i].label).view(1,))
 
-                print('Epoch [{}/{}], File[{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%').format(epoch+1, epochs, num_file, number_of_files, sum(loss_list)/len(loss_list), sum(acc_list)/len(acc_list))
+                print('Epoch [{}/{}], File[{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%').\
+                    format(epoch+1, epochs, num_file, number_of_files, sum(loss_list)/ \
+                    len(loss_list), sum(acc_list)/len(acc_list))
                 loss_list_epoch.append(sum(loss_list)/len(loss_list))
                 acc_list_epoch.append(sum(acc_list)/len(acc_list))
 
-            print('Over Epoch, Epoch [{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%').format(epoch+1, epochs, sum(loss_list_epoch)/len(loss_list_epoch), sum(acc_list_epoch)/len(acc_list_epoch))
+            print('Over Epoch, Epoch [{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%').\
+                format(epoch+1, epochs, sum(loss_list_epoch)/len(loss_list_epoch), \
+                sum(acc_list_epoch)/len(acc_list_epoch))
             print('number of training samples', number_of_samples)
-            torch.save(self.q_network.state_dict(), "/homes/gt4118/Desktop/supervised_learning/weights_classification.pth")
+            torch.save(self.q_network.state_dict(), "/home/george/Desktop/\
+            Github/supervised_learning/weights_classification.pth")
             self.validate()
 
-            for l in loss_list_epoch:
-                the_loss.append(l)
-            for a in acc_list_epoch:
-                the_acc.append(a)
+            for loss in loss_list_epoch:
+                the_loss.append(loss)
+            for accuracy in acc_list_epoch:
+                the_acc.append(accuracy)
             self.plot(the_loss, the_acc)
 
     def plot(self, train_loss, train_accuracy):
@@ -197,7 +199,8 @@ class ParseData:
         plt.suptitle('Training Loss Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/homes/gt4118/Desktop/supervised_learning/train_loss_plot.jpg')
+        plt.savefig('/home/george/Desktop/Github/supervised_learning/\
+            classification_train_loss_plot.jpg')
         plt.cla()
 
         plt.plot(valid_ind, self.valid_loss_list_epoch)
@@ -206,7 +209,8 @@ class ParseData:
         plt.suptitle('Validation Loss Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/gt4118/Desktop/supervised_learning/valid_loss_plot.jpg')
+        plt.savefig('/home/george/Desktop/Github/supervised_learning/\
+            classification_valid_loss_plot.jpg')
         plt.cla()
 
         plt.plot(train_ind, train_accuracy, '-b')
@@ -215,7 +219,8 @@ class ParseData:
         plt.suptitle('Training Accuracy Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/gt4118/Desktop/supervised_learning/train_acc_plot.jpg')
+        plt.savefig('/home/george/Desktop/Github/supervised_learning/\
+            classification_train_acc_plot.jpg')
         plt.cla()
 
         plt.plot(valid_ind, self.valid_acc_list_epoch, '-b')
@@ -224,14 +229,17 @@ class ParseData:
         plt.suptitle('Validation Accuracy Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/gt4118/Desktop/supervised_learning/valid_acc_plot.jpg')
+        plt.savefig('/home/george/Desktop/Github/supervised_learning/\
+            classification_valid_acc_plot.jpg')
         plt.cla()
 
     def validate(self):
-        dirs = os.listdir('/homes/gt4118/Desktop/supervised_learning/Datasets/validation_data/')
+        dirs = os.listdir('/home/george/Desktop/Github/supervised_learning/Datasets/\
+            validation_data/')
         batch_size = 25
         number_of_files = 9
-        self.q_network.load_state_dict(torch.load("/homes/gt4118/Desktop/supervised_learning/weights_classification.pth"))
+        self.q_network.load_state_dict(torch.load("/home/george/Desktop/\
+            Github/supervised_learning/weights_classification.pth"))
         self.q_network.eval()
         correct = 0
         total = 0
@@ -244,7 +252,8 @@ class ParseData:
                 num_file += 1
                 valid_loss_list = []
                 valid_acc_list = []
-                pkl_file = open('/homes/gt4118/Desktop/supervised_learning/Datasets/validation_data/'+file, 'rb')
+                pkl_file = open('/home/george/Desktop/Github/supervised_learning/\
+                    Datasets/validation_data/'+file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -266,9 +275,9 @@ class ParseData:
                 # for obj in new_objects:
                 #     if obj.label == 1:
                 #         objects.append(obj)
-                N = len(objects)
-                number_of_valid_samples += N
-                for i in range(N):
+                number_of_objects = len(objects)
+                number_of_valid_samples += number_of_objects
+                for i in range(number_of_objects):
                     if i%batch_size == 0 and i != 0:
                         img_state_batch = torch.cat(list_image)
                         img_state_batch = img_state_batch.clone().detach().float()
@@ -277,29 +286,30 @@ class ParseData:
                         grasp_orientation_batch = torch.cat(list_grasp_orientation).float()
                         label_batch = torch.cat(list_label).float()
                         label_batch = label_batch.view(-1, 1).float().to(self.device)
-                        grasp_orientation_batch = grasp_orientation_batch.view(-1,1)
-                        grasp_pos_x_batch = grasp_pos_x_batch.view(-1,1)
-                        grasp_pos_y_batch = grasp_pos_y_batch.view(-1,1)
-                        img_state_batch = img_state_batch.view(-1,3, 32, 32)
-                        action_vector = torch.cat((grasp_pos_x_batch, grasp_pos_y_batch, grasp_orientation_batch), dim=1)
+                        grasp_orientation_batch = grasp_orientation_batch.view(-1, 1)
+                        grasp_pos_x_batch = grasp_pos_x_batch.view(-1, 1)
+                        grasp_pos_y_batch = grasp_pos_y_batch.view(-1, 1)
+                        img_state_batch = img_state_batch.view(-1, 3, 32, 32)
+                        action_vector = torch.cat((grasp_pos_x_batch, grasp_pos_y_batch, \
+                            grasp_orientation_batch), dim=1)
                         probabilities = self.q_network(img_state_batch, action_vector)
                         loss = self.criterion(probabilities, label_batch)
                         valid_loss_list.append(loss.item())
                         total = action_vector.shape[0]
-                        a = []
-                        for km in probabilities:
-                            if km > 0.5:
-                                a.append(1)
+                        list_of_probs = []
+                        for probability in probabilities:
+                            if probability > 0.5:
+                                list_of_probs.append(1)
                             else:
-                                a.append(0)
-                        a = torch.tensor(a).float()
+                                list_of_probs.append(0)
+                        torch_of_probs = torch.tensor(list_of_probs).float()
 
-                        h = []
-                        for kl in label_batch:
-                            h.append(kl[0])
-                        h = torch.tensor(h)
+                        list_of_labels = []
+                        for label in label_batch:
+                            list_of_labels.append(label[0])
+                        torch_of_labels = torch.tensor(list_of_labels)
 
-                        correct = (h == a).sum().item()
+                        correct = (torch_of_labels == torch_of_probs).sum().item()
                         valid_acc_list.append((float(correct)/total)*100)
                         list_grasp_pos_x = []
                         list_grasp_pos_y = []
@@ -310,20 +320,25 @@ class ParseData:
                     else:
                         list_grasp_pos_x.append(torch.tensor(objects[i].grasp_pos_x).view(1,))
                         list_grasp_pos_y.append(torch.tensor(objects[i].grasp_pos_y).view(1,))
-                        list_grasp_orientation.append(torch.tensor(objects[i].grasp_orientation).view(1,))
+                        list_grasp_orientation.append(torch.tensor(objects[i].\
+                            grasp_orientation).view(1,))
                         list_image.append(torch.from_numpy(objects[i].image))
                         list_label.append(torch.tensor(objects[i].label).view(1,))
 
-                print('File[{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%').format(num_file, number_of_files, sum(valid_loss_list)/len(valid_loss_list), sum(valid_acc_list)/len(valid_acc_list))
+                print('File[{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%').\
+                    format(num_file, number_of_files, sum(valid_loss_list)/\
+                    len(valid_loss_list), sum(valid_acc_list)/len(valid_acc_list))
                 valid_loss_epoch.append(sum(valid_loss_list)/len(valid_loss_list))
                 valid_acc_epoch.append(sum(valid_acc_list)/len(valid_acc_list))
 
-            print('Overall Loss: {:.4f}, Accuracy: {:.2f}%').format(sum(valid_loss_epoch)/len(valid_loss_epoch), sum(valid_acc_epoch)/len(valid_acc_epoch))
+            print('Overall Loss: {:.4f}, Accuracy: {:.2f}%').\
+                format(sum(valid_loss_epoch)/len(valid_loss_epoch), \
+                sum(valid_acc_epoch)/len(valid_acc_epoch))
             print('number of validation samples', number_of_valid_samples)
-            for l in valid_loss_epoch:
-                self.valid_loss_list_epoch.append(l)
-            for a in valid_acc_epoch:
-                self.valid_acc_list_epoch.append(a)
+            for loss in valid_loss_epoch:
+                self.valid_loss_list_epoch.append(loss)
+            for accuracy in valid_acc_epoch:
+                self.valid_acc_list_epoch.append(accuracy)
             time.sleep(4)
 
 # my_data = ParseData()

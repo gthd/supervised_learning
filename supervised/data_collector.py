@@ -5,7 +5,7 @@ import numpy as np
 class Policy:
 
     def __init__(self):
-        self.robot = robot.Vrep_Communication()
+        self.robot = robot.VrepCommunication()
         self.termination_height = 0.13
         self.script = ''
 
@@ -17,7 +17,7 @@ class Policy:
             self.robot.initialise()
             self.robot.pick_color()
             self.robot.add_object()
-            self.robot.reset_object_position_and_orientation()
+            self.robot.reset_object_state()
             self.robot.get_initial_position()
             self.script = robot2.Script(self.robot)
         else:
@@ -26,7 +26,7 @@ class Policy:
             self.robot.initialise()
             self.robot.pick_color()
             self.robot.add_object()
-            self.robot.reset_object_position_and_orientation()
+            self.robot.reset_object_state()
             self.robot.get_initial_position()
             self.script = robot2.Script(self.robot)
 
@@ -91,10 +91,10 @@ class Policy:
                 self.robot.delete_object()
                 self.robot.delete_texture()
                 self.robot.add_object()
-                self.robot.reset_object_position_and_orientation()
+                self.robot.reset_object_state()
                 continue
 
-            self.robot.reset_object_position_and_orientation()
+            self.robot.reset_object_state()
 
 # policy = Policy()
 # policy.trainer()

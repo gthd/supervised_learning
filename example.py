@@ -3,7 +3,8 @@
 # from supervised import q_network as cl
 import supervised.data_collector as dc
 import supervised.regression as rg
-import supervised.q_network as cl
+import supervised.classification as cl
 
 
-dc.Policy().collect_training_data()
+# dc.Policy().collect_training_data()
+rg.Regression().train()

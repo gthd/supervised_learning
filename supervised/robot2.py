@@ -31,12 +31,12 @@ class Script:
 
     def get_sawyer_position(self):
         _, sawyer_target_position = vrep.simxGetObjectPosition(self.robot.client_id, \
-            self.robot.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+            self.robot.sawyer_target_handle, -1, vrep.simx_opmode_blocking)
         return sawyer_target_position
 
     def get_sawyer_orientation(self):
         _, sawyer_target_orientation = vrep.simxGetObjectOrientation(self.robot.client_id, \
-            self.robot.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+            self.robot.sawyer_target_handle, -1, vrep.simx_opmode_blocking)
         return sawyer_target_orientation
 
     def get_object_position(self):
@@ -60,7 +60,7 @@ class Script:
         _, self.object_position = vrep.simxGetObjectPosition(self.client_id, \
             self.robot.object_handle[0], -1, vrep.simx_opmode_blocking)
         _, sawyer_target_position = vrep.simxGetObjectPosition(self.client_id, \
-            self.robot.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+            self.robot.sawyer_target_handle, -1, vrep.simx_opmode_blocking)
         if exploit == bool(1):
             self.pickup_position = np.array([self.object_position[0], self.object_position[1], \
                 sawyer_target_position[2]])
@@ -75,7 +75,7 @@ class Script:
 
     def pick_orientation(self, exploit=True):
         _, euler_angles = vrep.simxGetObjectOrientation(self.client_id, \
-            self.robot.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+            self.robot.sawyer_target_handle, -1, vrep.simx_opmode_blocking)
         _, self.euler_angles2 = vrep.simxGetObjectOrientation(self.client_id, \
             self.robot.object_handle[0], -1, vrep.simx_opmode_blocking)
         if exploit == bool(1):
@@ -87,7 +87,7 @@ class Script:
 
     def set_gripper_position(self):
         _, sawyer_target_position = vrep.simxGetObjectPosition(self.client_id, \
-            self.robot.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+            self.robot.sawyer_target_handle, -1, vrep.simx_opmode_blocking)
         self.image = self.robot.get_image()
         move_direction = np.asarray([self.pickup_position[0] - sawyer_target_position[0], \
             self.pickup_position[1] - sawyer_target_position[1], self.pickup_position[2] - \
@@ -99,15 +99,15 @@ class Script:
         remaining_distance = remaining_magnitude * move_direction/move_magnitude
 
         for step_iter in range(num_move_steps): #selects action and executes action
-            vrep.simxSetObjectPosition(self.client_id, self.robot.Sawyer_target_handle, -1, \
+            vrep.simxSetObjectPosition(self.client_id, self.robot.sawyer_target_handle, -1, \
                 (sawyer_target_position[0] + move_step[0], sawyer_target_position[1] + \
                 move_step[1], sawyer_target_position[2] + move_step[2]), vrep.simx_opmode_blocking)
             _, sawyer_target_position = vrep.simxGetObjectPosition(self.client_id, \
-                self.robot.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+                self.robot.sawyer_target_handle, -1, vrep.simx_opmode_blocking)
             vrep.simxSynchronousTrigger(self.client_id)
             vrep.simxGetPingTime(self.client_id)
 
-        vrep.simxSetObjectPosition(self.robot.client_id, self.robot.Sawyer_target_handle, -1, \
+        vrep.simxSetObjectPosition(self.robot.client_id, self.robot.sawyer_target_handle, -1, \
         (sawyer_target_position[0] + remaining_distance[0], sawyer_target_position[1] + \
         remaining_distance[1], sawyer_target_position[2]+ remaining_distance[2]), \
         vrep.simx_opmode_blocking)
@@ -116,7 +116,7 @@ class Script:
 
     def set_gripper_orientation(self):
         _, sawyer_orientation = vrep.simxGetObjectOrientation(self.client_id, \
-            self.robot.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+            self.robot.sawyer_target_handle, -1, vrep.simx_opmode_blocking)
         rotation_step = 0.3 if (self.pickup_orientation[1] - sawyer_orientation[1] > 0) \
             else -0.3
         num_rotation_steps = int(np.floor((self.pickup_orientation[1] - \
@@ -124,15 +124,15 @@ class Script:
 
         for step_iter in range(num_rotation_steps):
             vrep.simxSetObjectOrientation(self.robot.client_id, \
-                self.robot.Sawyer_target_handle, -1, (sawyer_orientation[0], \
+                self.robot.sawyer_target_handle, -1, (sawyer_orientation[0], \
                 sawyer_orientation[1] + rotation_step, sawyer_orientation[2]), \
                 vrep.simx_opmode_blocking)
             _, sawyer_orientation = vrep.simxGetObjectOrientation(self.client_id, \
-                self.robot.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+                self.robot.sawyer_target_handle, -1, vrep.simx_opmode_blocking)
             vrep.simxSynchronousTrigger(self.client_id)
             vrep.simxGetPingTime(self.client_id)
 
-        vrep.simxSetObjectOrientation(self.robot.client_id, self.robot.Sawyer_target_handle, \
+        vrep.simxSetObjectOrientation(self.robot.client_id, self.robot.sawyer_target_handle, \
             -1, (sawyer_orientation[0], self.pickup_orientation[1], sawyer_orientation[2]), \
             vrep.simx_opmode_blocking)
         vrep.simxSynchronousTrigger(self.client_id)
@@ -142,7 +142,7 @@ class Script:
         _, object_position = vrep.simxGetObjectPosition(self.client_id, \
             self.robot.object_handle[0], -1, vrep.simx_opmode_blocking)
         _, sawyer_target_position = vrep.simxGetObjectPosition(self.client_id, \
-            self.robot.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+            self.robot.sawyer_target_handle, -1, vrep.simx_opmode_blocking)
 
         move_direction = np.asarray([self.pickup_position[0] - sawyer_target_position[0], \
             self.pickup_position[1] - sawyer_target_position[1], object_position[2] + 0.01 \
@@ -154,16 +154,16 @@ class Script:
         remaining_distance = remaining_magnitude * move_direction/move_magnitude
 
         for step_iter in range(num_move_steps):
-            vrep.simxSetObjectPosition(self.client_id, self.robot.Sawyer_target_handle,\
+            vrep.simxSetObjectPosition(self.client_id, self.robot.sawyer_target_handle,\
                 -1, (sawyer_target_position[0] + move_step[0], sawyer_target_position[1] \
                 + move_step[1], sawyer_target_position[2] + move_step[2]), \
                 vrep.simx_opmode_blocking)
             _, sawyer_target_position = vrep.simxGetObjectPosition(self.client_id,\
-                self.robot.Sawyer_target_handle, -1, vrep.simx_opmode_blocking)
+                self.robot.sawyer_target_handle, -1, vrep.simx_opmode_blocking)
             vrep.simxSynchronousTrigger(self.client_id)
             vrep.simxGetPingTime(self.client_id)
 
-        vrep.simxSetObjectPosition(self.robot.client_id, self.robot.Sawyer_target_handle, \
+        vrep.simxSetObjectPosition(self.robot.client_id, self.robot.sawyer_target_handle, \
             -1, (sawyer_target_position[0] + remaining_distance[0], sawyer_target_position[1] \
             + remaining_distance[1], sawyer_target_position[2]+ remaining_distance[2]), \
             vrep.simx_opmode_blocking)
