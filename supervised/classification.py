@@ -92,8 +92,8 @@ class Classification:
                 acc_list = []
                 loss_list = []
                 num_file += 1
-                pkl_file = open('/home/george/Desktop/Github/supervised_learning/Datasets/\
-                    train_data/'+file, 'rb')
+                pkl_file = open(r"/home/george/Desktop/Github/supervised_learning/Datasets/" \
+                    r"train_data/" + file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -179,8 +179,8 @@ class Classification:
                 format(epoch+1, epochs, sum(loss_list_epoch)/len(loss_list_epoch), \
                 sum(acc_list_epoch)/len(acc_list_epoch))
             print('number of training samples', number_of_samples)
-            torch.save(self.q_network.state_dict(), "/home/george/Desktop/\
-            Github/supervised_learning/weights_classification.pth")
+            torch.save(self.q_network.state_dict(), r"/home/george/Desktop/" \
+            r"Github/supervised_learning/weights_classification.pth")
             self.validate()
 
             for loss in loss_list_epoch:
@@ -199,8 +199,8 @@ class Classification:
         plt.suptitle('Training Loss Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/george/Desktop/Github/supervised_learning/\
-            classification_train_loss_plot.jpg')
+        plt.savefig(r"/home/george/Desktop/Github/supervised_learning/" \
+            r"classification_train_loss_plot.jpg")
         plt.cla()
 
         plt.plot(valid_ind, self.valid_loss_list_epoch)
@@ -209,8 +209,8 @@ class Classification:
         plt.suptitle('Validation Loss Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/george/Desktop/Github/supervised_learning/\
-            classification_valid_loss_plot.jpg')
+        plt.savefig(r"/home/george/Desktop/Github/supervised_learning/" \
+            r"classification_valid_loss_plot.jpg")
         plt.cla()
 
         plt.plot(train_ind, train_accuracy, '-b')
@@ -219,8 +219,8 @@ class Classification:
         plt.suptitle('Training Accuracy Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/george/Desktop/Github/supervised_learning/\
-            classification_train_acc_plot.jpg')
+        plt.savefig(r"/home/george/Desktop/Github/supervised_learning/" \
+            r"classification_train_acc_plot.jpg")
         plt.cla()
 
         plt.plot(valid_ind, self.valid_acc_list_epoch, '-b')
@@ -229,17 +229,17 @@ class Classification:
         plt.suptitle('Validation Accuracy Plot')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/george/Desktop/Github/supervised_learning/\
-            classification_valid_acc_plot.jpg')
+        plt.savefig(r"/home/george/Desktop/Github/supervised_learning/" \
+            r"classification_valid_acc_plot.jpg")
         plt.cla()
 
     def validate(self):
-        dirs = os.listdir('/home/george/Desktop/Github/supervised_learning/Datasets/\
-            validation_data/')
+        dirs = os.listdir(r"/home/george/Desktop/Github/supervised_learning/Datasets/" \
+            r"validation_data/")
         batch_size = 25
         number_of_files = 9
-        self.q_network.load_state_dict(torch.load("/home/george/Desktop/\
-            Github/supervised_learning/weights_classification.pth"))
+        self.q_network.load_state_dict(torch.load(r"/home/george/Desktop/" \
+            r"Github/supervised_learning/weights_classification.pth"))
         self.q_network.eval()
         correct = 0
         total = 0
@@ -252,8 +252,8 @@ class Classification:
                 num_file += 1
                 valid_loss_list = []
                 valid_acc_list = []
-                pkl_file = open('/home/george/Desktop/Github/supervised_learning/\
-                    Datasets/validation_data/'+file, 'rb')
+                pkl_file = open(r"/home/george/Desktop/Github/supervised_learning/" \
+                    r"Datasets/validation_data/" + file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -341,5 +341,5 @@ class Classification:
                 self.valid_acc_list_epoch.append(accuracy)
             time.sleep(4)
 
-# my_data = ParseData()
-# my_data.train()
+cl = Classification()
+cl.train()

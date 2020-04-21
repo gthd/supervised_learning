@@ -124,16 +124,15 @@ class Regression:
         plt.title('Loss over Iteration per file')
         plt.show()
         plt.pause(3)
-        plt.savefig('/home/george/Desktop/Github/supervised_learning/\
-            training.jpg')
+        plt.savefig(r"/home/george/Desktop/Github/supervised_learning" \
+            r"/training.jpg")
 
     def validate(self):
-        dirs = os.listdir('/home/george/Desktop/Github/supervised_learning/Datasets/\
-            train_data/')
+        dirs = os.listdir(r"/home/george/Desktop/Github/supervised_learning/Datasets" \
+            r"/train_data/")
         valid_loss_list_epoch = []
         batch_size = 10
-        self.q_network.load_state_dict(torch.load("/home/george/Desktop/\
-            Github/supervised_learning/weights_regression.pth"))
+        self.q_network.load_state_dict(torch.load("/home/george/Desktop/Github/supervised_learning/weights_regression.pth"))
         self.q_network.eval()
         number_of_valid_samples = 0
         num_file = 0
@@ -143,9 +142,9 @@ class Regression:
                 valid_loss_list = []
                 dist_x_list = []
                 dist_y_list = []
-                pkl_file = open('/home/george/Desktop/\
-                    Github/supervised_learning/Datasets/validation_data/\
-                    '+file, 'rb')
+                pkl_file = open(r"/home/george/Desktop" \
+                    r"/Github/supervised_learning/Datasets/validation_data/" \
+                    +file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -215,5 +214,5 @@ class Regression:
 
             print('Overall Loss: {:.4f}').format(sum(valid_loss_list_epoch)/\
                 len(valid_loss_list_epoch))
-# parse_data = ParseData()
-# parse_data.validate()
+rg = Regression()
+rg.validate()
