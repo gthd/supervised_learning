@@ -1,3 +1,4 @@
 *.pyc
 Datasets/*
 example.py
+__pycache__/*
