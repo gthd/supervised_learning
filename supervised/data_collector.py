@@ -96,5 +96,5 @@ class Policy:
 
             self.robot.reset_object_state()
 
-# policy = Policy()
-# policy.trainer()
+policy = Policy()
+policy.collect_training_data()

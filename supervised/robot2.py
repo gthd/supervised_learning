@@ -1,7 +1,6 @@
-import buffer
-
 import numpy as np
 import vrep
+import buffer
 
 class Script:
 

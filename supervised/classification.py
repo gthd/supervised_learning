@@ -1,7 +1,6 @@
 import os
 import pickle
 import time
-import robot
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -9,6 +8,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('agg')
+import robot
 
 class QNetwork(nn.Module):
     def __init__(self):
@@ -341,5 +341,5 @@ class Classification:
                 self.valid_acc_list_epoch.append(accuracy)
             time.sleep(4)
 
-cl = Classification()
-cl.train()
+classifier = Classification()
+classifier.train()

@@ -1,6 +1,5 @@
 import pickle
 import os
-import robot
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -9,6 +8,7 @@ import torchvision.models as models
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('agg')
+import robot
 
 class QNetwork(nn.Module):
     def __init__(self):
@@ -49,7 +49,8 @@ class Regression:
             for file in dirs:
                 loss_list = []
                 num_file += 1
-                pkl_file = open('/home/george/Desktop/Github/supervised_learning/Datasets/train_data/'+file, 'rb')
+                pkl_file = open(r"/home/george/Desktop/Github/supervised_learning/" \
+                    r"Datasets/train_data/" + file, 'rb')
                 objects = []
                 while True:
                     try:
@@ -132,7 +133,8 @@ class Regression:
             r"/train_data/")
         valid_loss_list_epoch = []
         batch_size = 10
-        self.q_network.load_state_dict(torch.load("/home/george/Desktop/Github/supervised_learning/weights_regression.pth"))
+        self.q_network.load_state_dict(torch.load(r"/home/george/Desktop/" \
+            r"Github/supervised_learning/weights_regression.pth"))
         self.q_network.eval()
         number_of_valid_samples = 0
         num_file = 0
@@ -215,4 +217,4 @@ class Regression:
             print('Overall Loss: {:.4f}').format(sum(valid_loss_list_epoch)/\
                 len(valid_loss_list_epoch))
 rg = Regression()
-rg.validate()
+rg.train()
