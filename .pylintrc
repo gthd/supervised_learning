@@ -5,3 +5,4 @@ disable=missing-docstring, too-many-instance-attributes, too-many-arguments, too
 [TYPECHECK]
 ignored-modules = numpy, numpy.testing
 ignored-classes = numpy, numpy.testing
+generated-members = torch.*, numpy.*

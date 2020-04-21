@@ -50,7 +50,7 @@ Additionally, the repository provides two different methods with which the robot
 
 1.  If you don't already have it, [install Python](https://www.python.org/downloads/).
 
-    This repository was developed is compatible with Python 2.7, 3.3, 3.4, 3.5 and 3.6.
+    This repository was developed is compatible with Python 2.7.
 
 2.  General recommendation for Python development is to use a Virtual Environment.
     For more information, see https://docs.python.org/3/tutorial/venv.html
@@ -77,6 +77,9 @@ Additionally, the repository provides two different methods with which the robot
     cd supervised_learning
     pip install -r requirements.txt
     ```
+3.  There is the option of whether to show the V-REP simulation environment while
+    the robot gathers data. To enable visualization delete the -h parameter from
+    https://github.com/gthd/supervised_learning/blob/2aab258da334f503c57df921c9ec449c3df2301c/supervised/robot.py#L77        
 
 ## Demo
 
